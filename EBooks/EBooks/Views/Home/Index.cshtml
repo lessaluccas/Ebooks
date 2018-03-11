@@ -1,0 +1,425 @@
+﻿@{
+    ViewBag.Title = "Home Page";
+}
+
+<style>
+    .perguntas {
+        border-left: 3px solid blue;
+        padding-left: 10px;
+        background-color: aliceblue;
+    }
+
+    .jumbotron {
+        padding: 20px;
+    }
+</style>
+
+<div class="jumbotron">
+    <h2 class="text-center"><b>Como criar uma loja de livros em ASP.NET sem uso de banco de dados (Back-End).</b></h2>
+
+    <br />
+    <br />
+
+    <p>
+        Você, amigo leitor,  tem vontade de aprender a desenvolver ?.
+    </p>
+
+    <div class="perguntas">
+        <p>“Tenho, mas estou começando e não sei muita coisa”.</p>
+    </div>
+
+    <br />
+
+    <p>
+        Não se preocupe, se tem vontade de aprender leia até o final.
+    </p>
+
+    <div class="perguntas">
+        <p>“Já sou desenvolvedor!”.</p>
+    </div>
+
+    <p>
+        Nunca é tarde para aprender, se você já souber fazer, comente e dê dicas, é sempre bom!.
+    </p>
+    <p>
+        Bom, vamos lá… “O que vamos desenvolver ?”. Uma loja de livros, explicarei ao decorrer.
+    </p>
+    <p>
+        Primeiro, precisamos ter o VS(Visual Studio instalado), não importa a versão. Só para esclarecer, não ensinarei como criar um projeto, até para não ficar cansativo, caso você não saiba, deixarei um link de outro post ensinando <span class="btn btn-link" style="font-size:20px;">aqui!.</span>
+    </p>
+
+    <p>
+        A loja de livros vai ser criada em ASP.NET MVC(Model-View-Controller) sem banco de dados.
+    </p>
+
+    <br />
+
+    <div class="perguntas">
+        <p>“Ah, mas como vamos fazer sem o banco ?”. </p>
+    </div>
+
+    <br />
+
+    <p>
+        Utilizaremos Session como um meio alternativo ao banco de dados, como isso é possível ? Veremos…
+    </p>
+
+    <p>
+        <b>Primeiro Passo:</b> Vamos criar nossas models(classes).
+    </p>
+    <p>
+        Na model de livro vamos adicionar os seguintes itens nela: <span style="font-style:italic;">LivroId, Nome, Descricao, Preco, Quantidade e Imagem. Sendo LivroId um número inteiro e único como id da classe para identificação.</span>
+    </p>
+
+    <br />
+    <!--imagem 1-->
+    <img src="~/Content/img/modelLivro.PNG" class="img-responsive" />
+    <!---->
+
+    <br />
+
+    <p>
+        Assim como visto na imagem a sua model(classe) deverá ficar igual, mas claro, você pode adicionar ou remover algum item, vai da sua escolha!
+    </p>
+
+    <div class="perguntas">
+        <p>“Mas o que são essas palavras coloridas e que estão em inglês ?”</p>
+    </div>
+
+    <p>
+        São DataAnnotations, utilizadas para validação, como campos obrigatórios, tamanho máximo e entre outros. Utilizaremos algumas no nosso projeto, mas como o foco não é esse, vou deixar este <span class="btn btn-link" style="font-size:20px;">link</span> com vocês caso queiram saber mais.
+    </p>
+    <p>
+        Bom, para não deixar o post “muuuito” grande, não vou explicar cada item da model(classe), vou deixar essa parte para um post futuro, mas caso fique alguma dúvida, sinta-se livre para me perguntar nos comentários, a onde você interage com outros leitores que podem até sanar as suas dúvidas antes de eu responder.
+    </p>
+    <p>
+        Na model de carrinho “CarrinhoDeCompra” vamos adicionar os seguintes itens: <span style="font-style:italic;">CarrinhoId, Livro, Quantidade e Total, assim como na model de Livro, o item CarrinhoId vai ser o Id dessa model.</span>
+    </p>
+
+    <br />
+
+    <!--imagem 2-->
+    <img src="~/Content/img/modelCarrinhoDeCompra.PNG" class="img-responsive" />
+    <!---->
+
+    <br />
+
+    <div class="perguntas">
+        <p>“Mas por quê não tem DataAnnotations nessa model ?”</p>
+    </div>
+
+    <br />
+
+    <div class="perguntas">
+        <p>“E por quê o item Livro é do tipo "Livro(model)" ?”</p>
+    </div>
+
+    <br />
+
+    <p>
+        Bom, como essa model não é diretamente de interação com o usuário não achei necessário adicionar DataAnnotations.
+        E como estamos fazendo uma loja de livros, um carrinho de compras precisa do que ? de um ou mais livros.
+    </p>
+    <br />
+
+    <div class="perguntas">
+        <p>“Ah, mas o carrinho só está recebendo um livro e não vários livros”</p>
+    </div>
+
+    <br />
+
+    <p>
+        Sim, só está recebendo um livro. como vamos fazer então para adicionar um ou mais ? a model CarrinhoDeCompra vai ser utilizada como uma lista de carrinho.
+    </p>
+    <p>
+        Tem como melhorar isso ? Sim, poderia ter uma outra classe chamada “Pedido”, por exemplo, e nela ter os itens do carrinho(menos CarrinhoId, seria PedidoId no caso) e na model de CarrinhoDeCompra receber os itens CarrinhoId, e uma lista de pedidos, ex:
+    </p>
+
+    <br />
+
+    <!--imagem 3-->
+    <img src="~/Content/img/modelCarrinhoDeCompraExtraido.PNG" class="img-responsive" />
+    <!---->
+
+    <br />
+
+    <p>
+        Mas como nossa aplicação é simples, preferi fazer do outro modo, você escolhe como deseja realizar, no decorrer do post vou utilizar a outra opção.
+    </p>
+
+    <p>
+        <b>Segundo Passo:</b> nossa segunda etapa vai ser nosso controller, que o próprio nome já diz, ele controla.
+    </p>
+
+    <br />
+
+    <div class="perguntas">
+        <p>“Mas o que ele controla ?”</p>
+    </div>
+
+    <br />
+
+    <p>
+        Todas as requisições do usuário. Seus métodos chamados actions são responsáveis por uma página, controlando qual model usar e qual view será mostrado ao usuário.
+    </p>
+    <p>
+        Primeiro vamos criar nosso método que vai retornar ao a página de interação com o usuário.
+    </p>
+
+    <!--imagem 4-->
+    <img src="~/Content/img/controllerLivroListarTodos.PNG" class="img-responsive" />
+    <!---->
+
+    <p>
+        Como podem ver, nosso método para retorno de todos os livros cadastrados é bem simples.
+    </p>
+
+    <br />
+
+    <div class="perguntas">
+        <p>“O que está acontecendo nesse método ?”.</p>
+    </div>
+
+    <br />
+
+    <p>
+        Antes de passar o que está sendo feito, note que “LstLivros” é uma variável, mas em qual momento ela está sendo criada ? Essa é uma de nossas Session, que vai substituir nosso banco de dados e elá é criada da seguinte maneira:
+    </p>
+
+    <br />
+
+    <!--imagem 5-->
+    <img src="~/Content/img/SessionLivros.PNG" class="img-responsive" />
+    <!---->
+
+    <br />
+
+    <p>
+        Então, voltando ao método, a primeira linha eu verifico se ela não está nula e se possui algum livro inserido, se a condição for <span style="font-style:italic;">true(verdadeira)</span>, eu retorno a view(tela de interação com usuário) passando a nossa lista de livros já cadastrada.
+        Caso a condição seja <span style="font-style:italic;">false(falso)</span> nós falamos que a nossa lista é uma nova lista de livros, sendo assim precisamos preencher alguns livros dentro dela para exibir ao nosso usuário, e é aí que a nossa lista recebe um método chamado “Preencherlivros”, no qual eu adiciono na lista alguns livros.
+    </p>
+
+    <br />
+
+    <!--imagem 6-->
+    <img src="~/Content/img/preencheLivros.PNG" class="img-responsive" />
+    <!---->
+
+    <br />
+
+    <p>
+        Conforme na imagem, estamos instanciando os livros, coloquei apenas dois, mas vocês podem adicionar quantos acharem melhor.
+    </p>
+
+    <br />
+
+    <div class="perguntas">
+        <p>“Mas que imagem é essa que você passou para a model ?”</p>
+    </div>
+
+    <br />
+
+    <p>
+        Essa é uma imagem convertida em string de base64, mas note que eu estou convertendo a nossa string para um array de bytes, já que é o que nossa model recebe no item “Imagem”
+        E como é uma string gigante, não coube, como fazemos para converter uma imagem nessa string ? utilizei um <span class="btn btn-link" style="font-size:20px;">site</span> que faz isso para nós.
+    </p>
+    <p>
+        Para o id do livro eu utilizei um recurso que gera id’s randômicos, já que não possuímos banco de dados na nossa aplicação.<br />
+    </p>
+    <p>
+        Fazendo isso tudo, é retornado a view com a nossa lista de livros, não vou entrar na parte de views nesse post, ficaremos apenas no back-end, então use a imaginação para criar e personalizar como você quiser, mas vou deixar um exemplo no final de como eu fiz.
+        Mas para ajudar você a criar uma view, se não souber, clique com o botão direito em cima do método que retorna a view e selecione a opção de adicionar, lá ele até te dá uma opção que cria a sua tela sozinho.
+    </p>
+    <p>
+        Vamos ao método de criar um novo livro já com a interação do usuário, ou seja, ele vai cadastrar qual livro ele quiser.
+    </p>
+
+    <br />
+
+    <!--imagem 7-->
+    <img src="~/Content/img/addLivro.PNG" class="img-responsive" />
+    <!---->
+
+    <br />
+
+    <div class="perguntas">
+        <p>“Mas por quê tem dois métodos com nomes iguais ?”</p>
+    </div>
+
+    <br />
+
+    <p>
+        Um vai apenas retornar a view(tela) de cadastro de livro para o usuário, enquanto o outro vai realmente adicionar um livro, percebe que no segundo método eu recebo como parâmetro dois itens, o primeiro é a model de livro, e o outro é o arquivo que o usuário selecionou para realizar o cadastro.
+    </p>
+    <p>
+        Começando nosso método, eu verifico se o estado da model é válido com o “ModelState”, no qual ele vai ver aquelas DataAnnotations adicionadas na model de livro, lembra ?
+        e comparar com o que foi informado pelo usuário, se tudo que o usuário digitou for válido, ele vai passar para nossa segunda validação, no qual está verificando se o usuário escolheu uma imagem, se sim ele entra na validação e transforma a imagem e em base64, adicionando a nossa classe de livro, caso não passe na nossa validação, retornamos uma mensagem de erro para o usuário.
+        Depois colocamos um id randômico ao livro e adicionamos ele na lista de livro que é a session que criamos, após isso retornaremos a tela de cadastro com uma mensagem de sucesso.
+    </p>
+    <p>
+        Vamos para a alteração de um livro já existente:
+    </p>
+
+    <br />
+
+    <!--imagem 8-->
+    <img src="~/Content/img/updateLivro.PNG" class="img-responsive" />
+    <!---->
+
+    <br />
+
+    <p>
+        Note que agora nosso método que é para retornar a view de alteração recebe um parâmetro, diferente do de cadastro, e por quê ? Para já trazer o livro que você deseja realizar a alteração, então fazemos algumas validações para confirmar que não seja alguma informação inválida, após isso uma expressão dentro da lista para procurar o livro pelo id, achando o livro é retornado a view com as opções preenchidas.
+    </p>
+    <p>
+        No segundo método possui os mesmos parâmetros que o de cadastrar,  validamos novamente as informações informadas pelo usuário, mas note que não atribuímos um outro id para o livro, já que não é necessário por esse livro já existir.
+        Como não utilizamos banco de dados, essa é uma opção para realizar o update do livro, eu removo todos os livros de dentro da lista que possuem o id igual ao que o usuário realizou o update. E por que eu faço assim ? é preferência minha mesmo, você pode utilizar de outro método que é apenas o “remove()” que recebe como parâmetro a model do livro para remover, nisso você teria que achar o livro na lista e depois remover ele.
+        Após isso eu adiciono ele novamente na lista já com as alterações que o usuário utilizou e redireciono para a view que possui todos os livros com uma mensagem de sucesso.
+        OBS: Claro que se possuísse um banco de dados o método seria diferente.
+    </p>
+    <p>
+        Agora ao método para remover um livro:
+    </p>
+
+    <br />
+
+    <!--imagem 9-->
+    <img src="~/Content/img/excluirLivro.PNG" class="img-responsive" />
+    <!---->
+
+    <br />
+
+    <div class="perguntas">
+        <p>“Por quê não são 2 métodos, iguais aos outros ?”</p>
+    </div>
+
+    <br />
+
+    <p>
+        Não precisamos retornar uma view só para remover o livro, mas lembre-se, sempre é bom perguntar ao usuário se ele realmente deseja remover, pode acontecer dele ter clicado apenas por curiosidade.
+    </p>
+    <p>
+        É um método bem simples, faço as validações necessárias, removo o livro e retorno para a view que lista todos os livros com a mensagem de sucesso.
+    </p>
+    <p>
+        Basicamente esse é o nosso controller de livros.
+    </p>
+
+    <br />
+
+    <div class="perguntas">
+        <p>“Só isso ? posso personalizar ?”</p>
+    </div>
+
+    <p>
+        Claro, fique a vontade, eu só utilizei estes métodos.
+    </p>
+    <p>
+        Vamos dar ínicio ao nosso controller da loja ?
+    </p>
+    <br />
+    <!--imagem 10-->
+    <img src="~/Content/img/SessionCarrinho.PNG" class="img-responsive" />
+    <!---->
+
+    <br />
+
+    <!--imagem 11-->
+    <img src="~/Content/img/pageLoadLoja.PNG" class="img-responsive" />
+    <!---->
+
+    <br />
+
+    <p>
+        Criamos a session de carrinho igual fizemos com a de livro.
+    </p>
+    <p>
+        Como podemos ver, utilizamos a session de livros nessa tela também, e para que ? para ter os livros a venda na loja, fazemos validações já vistas antes e retornamos para a tela os livros.
+    </p>
+    <p>
+        Logo em seguida nos deparamos com o seguinte método:
+    </p>
+
+    <br />
+
+    <!--imagem 12-->
+    <img src="~/Content/img/addCarrinho.PNG" class="img-responsive" />
+    <!---->
+
+    <br />
+
+    <p>
+        Um pouco maior e mais complicado que os anteriores, mas fique tranquilo, não é um bicho de 7 cabeças, é fácil de entender, você verá.
+    </p>
+    <p>
+        Logo de ínicio, recupero a session da lista de livros criando uma variável chamada <span style="font-style:italic;">“lstLivros”</span>, após isso eu crio uma outra variável chamada <span style="font-style:italic;">“livro”</span> no qual eu utilizo uma expressão dentro da lista para achar o livro que possui o mesmo id que veio do parâmetro.
+    </p>
+    <p>
+        Faço uma validação para ver se realmente achou o livro, se achou ele vai para a próxima validação que é conferido se o usuário tentou adicionar uma quantidade de livros maior que a quantidade cadastrada ou se é menor que zero, caso seja verdadeira essa mensagem para a view da loja com uma mensagem de erro.
+    </p>
+    <p>
+        Logo após, eu instancio a model carrinho, crio uma variável chamada “cart”, que procura por um carrinho que já possua o livro que o usuário está tentando adicionar, se existir eu removo por “precaução” e adiciono novamente, depois crio uma variável que vai verificar a quantidade que restou disponível de livros, e realizo um “update” na lista de livros, passando a quantidade restante e retorno a view da loja com a mensagem de sucesso.
+        Viu, muito simples.
+    </p>
+    <p>
+        Agora vem nosso último passo, o carrinho…
+    </p>
+
+    <br />
+
+    <!--imagem 13-->
+    <img src="~/Content/img/carrinho.PNG" class="img-responsive" />
+    <!---->
+
+    <br />
+
+    <p>Acho que essa parte vocês já sabem, não é mesmo ? vamos para a próxima e última então:</p>
+
+    <br />
+
+    <!--imagem 14-->
+    <img src="~/Content/img/excluirCarrinho.PNG" class="img-responsive" />
+    <!---->
+
+    <br />
+
+    <p>
+        Essa é a parte mais difícil do nosso projeto, mas nada que seja impossível de entender, a primeira validação é bem simples, vemos se a quantidade do livro que o usuário quer remover é menor ou igual a 0, se for, retornamos a view com uma mensagem de erro.
+    </p>
+    <p>
+        Após isso, recuperamos a lista de carrinho e a lista de livros, verifico se eles estão diferentes de nulo.
+        Criamos uma variável chamada “cart” que procura o carrinho cujo o usuário deseja remover um livro, simples validação para ver se o carrinho existe, vejo se a quantidade de livros que o usuário quer remover é maior que a disponível no carrinho, se for não permito e retorno a view com uma mensagem de erro.
+    </p>
+
+    <p>
+        Variável “totalQtde” que recebe a quantidade de livros no carrinho - a quantidade informada pelo usuário que ele deseja remover, procuramos na lista de carrinho a onde id do carrinho for igual ao id passado por parâmetro e removemos ele.
+        Achamos o livro na lista de livros e vamos realizar um “update”, percebe que eu passo um valor para livro.Quantidade = ele mesmo + quantidade que usuário deseja remover, isso para deixar o livro disponível de novo, caso não façamos isso ao tentar adicionar este livro ao carrinho, não vai conseguir caso ele não tenha uma quantidade disponível.
+    </p>
+    <p>
+        Nossa última validação verifica se a variável que criamos com o total de quantidade restante do carrinho é maior que 0, se for vamos adicioná-lo a nossa lista de carrinho novamente, passando a nova quantidade e recalculando o valor total dos livros.
+        Após isso direcionamos para view de carrinho.
+    </p>
+    <p>
+        Bom pessoal, é basicamente isso, ficou um pouco grande, ainda que nem coloquei as views de interação com o usuário, vou deixar por conta de vocês!.
+    </p>
+    <p>
+        Lembrando que o código fonte encontra-se no meu <span class="btn btn-link" style="font-size:20px;">GitHub.</span>
+    </p>
+
+    <br />
+
+    <p>
+        <b>“Always pass on what you have learned.”</b>(“Sempre passar o que você aprendeu.") ~ Mestre Yoda.
+    </p>
+    <p>
+        Agradeço a todos e até uma próxima, que a força esteja com todos vocês!
+    </p>
+
+    <br />
+    <p>
+        <b>
+            Autor do post: Luccas Henrique Lessa Maccarone
+        </b>
+    </p>
+
+</div>

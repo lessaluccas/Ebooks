@@ -1,0 +1,65 @@
+﻿@model IEnumerable<EBooks.Models.CarrinhoDeCompra>
+
+@{
+    if (Model != null)
+    {
+        <div class="col-md-12">
+            @Html.ActionLink("Continuar comprando...", "LojaLivros", "loja", new { }, new { @class = "btn btn-link" })
+        </div>
+        <table class="table table-bordered table-hover">
+            <thead>
+                <tr>
+                    <th></th>
+                    <th>Nome</th>
+                    <th>Preço</th>
+                    <th>Quantidade</th>
+                    <th></th>
+                    <th>Total</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var item in Model)
+                {
+                    <tr>
+                        <td>
+                            @if (item.Livro.Imagem != null)
+                            {
+                                <img src="@string.Concat("data:image/png;base64,", Convert.ToBase64String(item.Livro.Imagem, 0, item.Livro.Imagem.Length))" alt="Livro" width="100" height="100" />
+                            }
+                        </td>
+                        <td>
+                            @item.Livro.Nome
+                        </td>
+                        <td>
+                            @item.Livro.Preco.ToString("c")
+                        </td>
+                        <td>
+                            @item.Quantidade
+                        </td>
+                        <td>
+                            <button onclick="carrinhoId.value = @item.CarrinhoId" type="button" class="btn btn-danger btn-xs" data-toggle="modal" data-target="#myModal">
+                                <span class="glyphicon glyphicon-remove-sign" aria-hidden="true"></span>
+                                Remover
+                            </button>
+                        </td>
+                        <td>
+                            @item.Total.ToString("c")
+                        </td>
+                    </tr>
+                }
+                <tr>
+                    <td>Total: @Model.Sum(x => x.Total).ToString("c")</td>
+                </tr>
+            </tbody>
+        </table>
+        <br />
+        <a href="#pagamento" data-toggle="tab" class="btn btn-link pull-right" role="button">Ir para pagamento <i class="glyphicon glyphicon-send"></i></a>
+        <br />
+    }
+    else
+    {
+        <div class="col-md-12">
+            @Html.ActionLink("Continuar comprando...", "LojaLivros", "loja", new { }, new { @class = "btn btn-link" })
+        </div>
+    }
+}

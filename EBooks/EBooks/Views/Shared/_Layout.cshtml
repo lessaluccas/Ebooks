@@ -1,0 +1,75 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>@ViewBag.Title - My ASP.NET Application</title>
+    @Styles.Render("~/Content/css")
+    @Scripts.Render("~/bundles/modernizr")
+    <link href="~/Content/font-awesome.min.css" rel="stylesheet" />
+    <link href="~/Content/font-awesome.css" rel="stylesheet" />
+    <style>
+        .badge {
+            display: inline-block !important;
+            min-width: 10px !important;
+            padding: 3px 7px !important;
+            font-size: 12px !important;
+            font-weight: bold !important;
+            line-height: 1 !important;
+            color: #fff !important;
+            text-align: center !important;
+            white-space: nowrap !important;
+            vertical-align: top !important;
+            background-color: #1d2eff !important;
+            border-radius: 10px !important;
+        }
+
+        .fa-2x {
+            font-size: 1.5em !important;
+        }
+    </style>
+</head>
+<body>
+    <div class="navbar navbar-inverse navbar-fixed-top">
+        <div class="container">
+            <div class="navbar-header">
+                <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                </button>
+                @Html.ActionLink("E-Books", "Index", "Home", new { area = "" }, new { @class = "navbar-brand" })
+            </div>
+            <div class="navbar-collapse collapse">
+                <ul class="nav navbar-nav">
+                    <li>@Html.ActionLink("Livros", "TodosLivros", "Livro")</li>
+                    <li>@Html.ActionLink("Loja de Livros", "lojaLivros", "Loja")</li>
+                    <li>
+                        <a href="@Url.Action("Carrinho", "Carrinho")" class="btn btn-link">
+                            <span class="fa fa-shopping-cart fa-2x" aria-hidden="true">&nbsp;<span class="badge badge-light">@{Html.RenderAction("TotalCarrinho", "Home");}</span></span>
+                        </a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    @RenderBody()
+
+    <hr />
+    <footer>
+        <p>&copy; @DateTime.Now.Year - My ASP.NET Application</p>
+    </footer>
+
+
+    @Scripts.Render("~/bundles/jquery")
+    @Scripts.Render("~/bundles/bootstrap")
+    @RenderSection("scripts", required: false)
+    <script>
+        $(function () {
+            $('a[title]').tooltip();
+        });
+
+    </script>
+</body>
+</html>

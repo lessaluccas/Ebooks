@@ -1,0 +1,61 @@
+﻿@model IEnumerable<EBooks.Models.CarrinhoDeCompra>
+
+@if (Model != null)
+{
+
+    <div class="container text-center" style="position: relative;left: 30%;">
+        <div class="col-xs-12 col-md-4">
+            <div class="panel panel-default">
+                <div class="panel-heading">
+                    <h3 class="panel-title">
+                        Detalhes do Pagamento
+                    </h3>
+                </div>
+                <div class="panel-body">
+                    <form role="form">
+                        <div class="form-group">
+                            <label for="cardNumber">
+                                Número do cartão
+                            </label>
+                            <div class="input-group">
+                                <input type="text" class="form-control" id="cardNumber" maxlength="16" placeholder="Só de exemplo" autofocus />
+                                <span class="input-group-addon"><span class="glyphicon glyphicon-lock"></span></span>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-xs-7 col-md-7">
+                                <div class="form-group">
+                                    <label for="expityMonth">
+                                        Data de Vencimento
+                                    </label>
+                                    <div class="col-xs-6 col-lg-6 pl-ziro">
+                                        <input type="text" class="form-control" id="expityMonth" maxlength="2" placeholder="MM" required />
+                                    </div>
+                                    <div class="col-xs-6 col-lg-6 pl-ziro">
+                                        <input type="text" class="form-control" id="expityYear" maxlength="2" placeholder="YY" required />
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-xs-5 col-md-5 pull-right">
+                                <div class="form-group">
+                                    <label for="cvCode">
+                                        CV
+                                    </label>
+                                    <input type="password" class="form-control" id="cvCode" placeholder="CV" maxlength="3" />
+                                </div>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+            <ul class="nav nav-pills nav-stacked">
+                <li class="active">
+                    <a href="#"><span class="badge pull-right"><span><b>R$: </b></span>@Model.Sum(x => x.Total)</span> TOTAL A PAGAR </a>
+                </li>
+            </ul>
+            <br />
+            <a href="#completo" data-toggle="tab" class="btn btn-success btn-lg btn-block" role="button">PAGAR</a>
+        </div>
+    </div>
+
+}

@@ -1,0 +1,104 @@
+﻿@model IEnumerable<EBooks.Models.CarrinhoDeCompra>
+@{
+    ViewBag.Title = "Carrinho";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+<link href="~/Content/TabPills.css" rel="stylesheet" />
+<br />
+@if (!string.IsNullOrWhiteSpace(TempData["erro"]?.ToString()))
+{
+    <div class="alert alert-danger" role="alert">
+        @TempData["erro"]
+    </div>
+}
+@if (!string.IsNullOrWhiteSpace(TempData["msg"]?.ToString()))
+{
+    <div class="alert alert-success" role="alert">
+        @TempData["msg"]
+    </div>
+}
+
+<section style="background:#efefe9;">
+    <div class="container">
+        <div class="row">
+            <div class="board">
+                <div class="board-inner">
+                    <ul class="nav nav-tabs" id="myTab">
+                        <div class="liner"></div>
+                        <li class="active">
+                            <a href="#carrinho" data-toggle="tab" title="CARRINHO">
+                                <span class="round-tabs one">
+                                    <i class="fa fa-shopping-cart"></i>
+                                </span>
+                            </a>
+                        </li>
+
+                        <li>
+                            <a href="#pagamento" data-toggle="tab" title="PAGAMENTO">
+                                <span class="round-tabs three">
+                                    <i class="fa fa-credit-card"></i>
+                                </span>
+                            </a>
+                        </li>
+                        <li>
+                            <a href="#completo" data-toggle="tab" title="COMPLETO">
+                                <span class="round-tabs five">
+                                    <i class="glyphicon glyphicon-ok"></i>
+                                </span>
+                            </a>
+                        </li>
+
+                    </ul>
+                </div>
+                <div class="tab-content">
+
+                    <div class="tab-pane fade in active" id="carrinho">
+                        <div class="col-md-12">
+                            <div class="table-responsive">
+                                @{ Html.RenderPartial("_Carrinho", Model);}
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="tab-pane fade" id="pagamento">
+                        @{ Html.RenderPartial("_Pagamento", Model);}
+                        <br />
+                        <br />
+                    </div>
+
+
+                    <div class="tab-pane fade" id="completo">
+                        <div class="text-center">
+                            <i class="img-intro icon-checkmark-circle"></i>
+                        </div>
+                        <h3 class="head text-center"><span style="color:green;" class="glyphicon glyphicon-ok" aria-hidden="true"></span> Obrigado por comprar com a gente!</h3>
+                    </div>
+                    <div class="clearfix"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title" id="myModalLabel">Remover Item</h4>
+            </div>
+            @using (Html.BeginForm("RemoverLivroCarrinho", "Carrinho"))
+            {
+                <div class="modal-body">
+                    <input type="hidden" name="id" id="carrinhoId" />
+                    <label>Quantidade</label>
+                    <input type="number" id="quantidade" name="quantidade" class="form-control" />
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Não</button>
+                    <button type="submit" class="btn btn-danger">Sim</button>
+                </div>
+            }
+        </div>
+    </div>
+</div>

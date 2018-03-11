@@ -1,0 +1,116 @@
+﻿@model IEnumerable<EBooks.Models.Livro>
+
+@{
+    ViewBag.Title = "LojaLivros";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+<style>
+    .product_view .modal-dialog {
+        max-width: 800px;
+        width: 100%;
+    }
+
+    .pre-cost {
+        text-decoration: line-through;
+        color: #a5a5a5;
+    }
+
+    .space-ten {
+        padding: 10px 0;
+    }
+</style>
+
+<body>
+
+    <h2 class="text-center">E-Books</h2>
+    <br />
+
+
+    @if (!string.IsNullOrWhiteSpace(TempData["erro"]?.ToString()))
+    {
+        <div class="alert alert-danger" role="alert">
+            @TempData["erro"]
+        </div>
+    }
+    @if (!string.IsNullOrWhiteSpace(TempData["msg"]?.ToString()))
+    {
+        <div class="alert alert-success" role="alert">
+            @TempData["msg"]
+        </div>
+    }
+
+    <div class="container">
+        @*<div class="row">*@
+        <div class="row">
+            @foreach (var item in Model)
+            {
+                var id = "#product_view" + item.LivroId;
+                <div class="col-md-3">
+                    <div class="thumbnail">
+                        <img src="@string.Concat("data:image/png;base64,", Convert.ToBase64String(item.Imagem, 0, item.Imagem.Length))" width="200" alt="Livro" class="img-responsive">
+                        <div class="caption">
+                            <h4 class="pull-right">@item.Preco.ToString("c")</h4>
+                            <h4><a href="#">@item.Nome.ToUpper()</a></h4>
+                            <p>
+                                @if (item.Quantidade <= 0)
+                                {
+                                    <b style="color:red;">LIVRO INDISPONÍVEL</b>
+                                }
+                                else
+                                {
+                                    <b>Quantidade: @item.Quantidade</b>
+                                }
+                            </p>
+                        </div>
+                        <div class="space-ten"></div>
+                        <div class="btn-ground text-center">
+                            @if (item.Quantidade <= 0)
+                            {
+                                <button type="button" disabled="disabled" class="btn btn-primary">
+                                    <span class="fa fa-shopping-cart" aria-hidden="true"></span>
+                                    Add
+                                </button>
+                            }
+                            else
+                            {
+                                <button type="button" class="btn btn-primary" onclick="livroId.value = @item.LivroId" data-toggle="modal" data-target="#myModal">
+                                    <span class="fa fa-shopping-cart" aria-hidden="true"></span>
+                                    Add
+                                </button>
+                            }
+                            <button type="button" class="btn btn-primary" data-toggle="modal" data-target="@id"><i class="fa fa-search"></i> Visualizar</button>
+                        </div>
+                        <div class="space-ten"></div>
+                    </div>
+                </div>
+            }
+        </div>
+        @*</div>*@
+    </div>
+
+    @{ Html.RenderPartial("_Visualizar", Model.OrderByDescending(x => x.Quantidade).ToList());}
+
+    <div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                    <h4 class="modal-title" id="myModalLabel">Adicionar ao carrinho</h4>
+                </div>
+                @using (Html.BeginForm("AddCarrinho", "Loja"))
+                {
+                    <div class="modal-body">
+                        <input type="hidden" name="id" id="livroId" />
+                        <label>Quantidade desejada:</label>
+                        <input type="number" id="quantidade" autofocus name="quantidade" class="form-control" />
+                    </div>
+                    <div class="modal-footer">
+                        <button type="submit" class="btn btn-primary">Add</button>
+                        <button type="button" class="btn btn-default" data-dismiss="modal">Cancelar</button>
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+
+</body>
