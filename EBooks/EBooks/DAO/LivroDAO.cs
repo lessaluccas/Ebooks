@@ -6,7 +6,7 @@ using System.Web;
 using System.Web.Mvc;
 
 namespace EBooks.DAO
-{    
+{
     public class LivroDAO
     {
 
@@ -32,6 +32,8 @@ namespace EBooks.DAO
         public void DeleteLivro(int id)
         {
             var lstLivros = (List<Livro>)HttpContext.Current.Session["LstLivros"];
+            if (id <= 0 || !lstLivros.Any(x => x.LivroId.Equals(id)))
+                throw new ArgumentException("Não foi possível localizar o livro, favor verificar!");
             lstLivros.RemoveAll(x => x.LivroId.Equals(id));
             HttpContext.Current.Session["LstLivros"] = lstLivros;
         }
@@ -50,7 +52,7 @@ namespace EBooks.DAO
             else
             {
                 throw new ArgumentException("Favor selecionar uma imagem!");
-            }            
+            }
         }
 
         #endregion
