@@ -1,100 +1,43 @@
-﻿using EBooks.DAO;
-using EBooks.Models;
+﻿using EBooks.Models;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Web;
 using System.Web.Mvc;
 
-namespace EBooks.Controllers
-{
-    public class LivroController : Controller
+namespace EBooks.DAO
+{    
+    public class LivroDAO
     {
 
-        #region Propriedades
+        #region CRUD
 
-        public List<Livro> LstLivros
+        public void AddLivro(Livro l)
         {
-            get { return (List<Livro>)Session["LstLivros"]; }
-            set { Session["LstLivros"] = value; }
-        }
-
-        #endregion
-
-        #region PageLoad
-
-        [HttpGet]
-        public ActionResult TodosLivros()
-        {
-            if (LstLivros != null && LstLivros.Any()) return View(LstLivros);
-            LstLivros = new List<Livro>();
-            LstLivros = PreencherLivros();
-            return View(LstLivros);
-        }
-
-        #endregion
-
-        #region NovoLivro
-
-        [HttpGet]
-        public ActionResult NovoLivro()
-        {
-            return View();
-        }
-
-        [HttpPost]
-        public ActionResult NovoLivro(Livro l, HttpPostedFileBase file)
-        {
-            if (!ModelState.IsValid)
-                return View(l);
-            //Criando um novo ID randômico para o livro
-            //Recuperando o arquivo de imagem
-            if (file != null && file.ContentLength > 0 && (file.ContentType == "image/jpg" || file.ContentType == "image/jpeg" || file.ContentType == "image/png"))
-            {
-                //Convertendo imagem para base64 (BYTES)
-                int filelenght = file.ContentLength;
-                byte[] imagebytes = new byte[filelenght];
-                file.InputStream.Read(imagebytes, 0, filelenght);
-                l.Imagem = imagebytes;
-            }
-            else
-            {
-                ModelState.AddModelError("Imagem", "Favor selecionar uma imagem!");
-                return View(l);
-            }
+            var lstLivros = (List<Livro>)HttpContext.Current.Session["LstLivros"];
             var rand = new Random();
             l.LivroId = rand.Next(0, Int32.MaxValue);
-            //Adicionando O novo livro na lista de livros
-            LstLivros.Add(l);
-            //Dando uma mensagem de sucesso para o usuário
-            TempData["msg"] = "Livro cadastrado com sucesso!";
-            //Retornando para a action NovoLivro(HTTPGET)
-            return RedirectToAction("NovoLivro");
+            lstLivros.Add(l);
+            HttpContext.Current.Session["LstLivros"] = lstLivros;
         }
 
-        #endregion
-
-        #region EditarLivro
-
-        [HttpGet]
-        public ActionResult EditarLivro(int id)
+        public void UpdateLivro(Livro l)
         {
-            if (id == 0 || !LstLivros.Any(x => x.LivroId.Equals(id)))
-            {
-                TempData["erro"] = "Livro não encontrado!";
-                return RedirectToAction("TodosLivros");
-            }
-
-            var livro = LstLivros.Find(x => x.LivroId.Equals(id));
-            return View(livro);
+            var lstLivros = (List<Livro>)HttpContext.Current.Session["LstLivros"];
+            lstLivros.RemoveAll(x => x.LivroId.ToString().Equals(l.LivroId.ToString()));
+            lstLivros.Add(l);
+            HttpContext.Current.Session["LstLivros"] = lstLivros;
         }
 
-        [HttpPost]
-        public ActionResult EditarLivro(Livro l, HttpPostedFileBase file)
+        public void DeleteLivro(int id)
         {
-            if (!ModelState.IsValid)
-                return View(l);
-            //Recuperando o arquivo de imagem
+            var lstLivros = (List<Livro>)HttpContext.Current.Session["LstLivros"];
+            lstLivros.RemoveAll(x => x.LivroId.Equals(id));
+            HttpContext.Current.Session["LstLivros"] = lstLivros;
+        }
+
+        public Livro AdicionaImagemLivro(Livro l, HttpPostedFileBase file)
+        {
             if (file != null && file.ContentLength > 0 && (file.ContentType == "image/jpg" || file.ContentType == "image/jpeg" || file.ContentType == "image/png"))
             {
                 //Convertendo imagem para base64 (BYTES)
@@ -102,38 +45,12 @@ namespace EBooks.Controllers
                 byte[] imagebytes = new byte[filelenght];
                 file.InputStream.Read(imagebytes, 0, filelenght);
                 l.Imagem = imagebytes;
+                return l;
             }
             else
             {
-                ModelState.AddModelError("Imagem", "Favor selecionar uma imagem!");
-                return View(l);
-            }
-            //Realizando um "UPDATE"
-            //Apenas excluindo o registro já existente e adicionando o mesmo com informações alteradas, caso tivesse um banco de dados seria outra maneira de realizar o "UPDATE"
-            LstLivros.RemoveAll(x => x.LivroId.ToString().Equals(l.LivroId.ToString()));
-            LstLivros.Add(l);
-            //Dando uma mensagem de sucesso para o usuário
-            TempData["msg"] = "Livro alterado com sucesso!";
-            //Retornando para a action TodosLivros(HTTPGET)
-            return RedirectToAction("TodosLivros");
-        }
-
-        #endregion
-
-        #region ExcluirLivro
-
-        public ActionResult ExcluirLivro(int id)
-        {
-            if(id <= 0 || !LstLivros.Any(x => x.LivroId.Equals(id)))
-            {
-                TempData["erro"] = "Não foi possível localizar o livro, favor verificar!";
-                return RedirectToAction("TodosLivros");
-            }
-            //Remover todos os livros com o mesmo id
-            //Poderia ter achado um unico livro da lista e utilizado o método Remove(livro)
-            LstLivros.RemoveAll(x => x.LivroId.Equals(id));
-            TempData["msg"] = "Livro excluído com sucesso!";
-            return RedirectToAction("TodosLivros");
+                throw new ArgumentException("Favor selecionar uma imagem!");
+            }            
         }
 
         #endregion
