@@ -47,7 +47,7 @@ namespace EBooks.DAO
             HttpContext.Current.Session["LstLivros"] = lstLivros;
         }
 
-        public void DeleteCarrinho(int id, int quantidade = 0)
+        public void DeleteLivroCarrinho(int id, int quantidade = 0)
         {
             if (quantidade <= 0)
                 throw new ArgumentException("Para remover um item do carrinho a quantidade deve ser maior que 0!");
