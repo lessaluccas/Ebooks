@@ -1,5 +1,6 @@
 ﻿using EBooks.DAO;
 using EBooks.Models;
+using EBooks.Repository;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -12,7 +13,7 @@ namespace EBooks.Controllers
     {
         #region PageLoad
 
-        private CarrinhoDAO _carrinhoDao = new CarrinhoDAO();
+        private RepositoryCarrinho _repCarrinho = new RepositoryCarrinho();
 
         public ActionResult Carrinho()
         {
@@ -28,7 +29,7 @@ namespace EBooks.Controllers
         {
             try
             {
-                _carrinhoDao.DeleteLivroCarrinho(id, quantidade);
+                _repCarrinho.DeleteLivroCarrinho(id, quantidade);
             }
             catch (Exception ex)
             {

@@ -1,5 +1,6 @@
 ﻿using EBooks.DAO;
 using EBooks.Models;
+using EBooks.Repository;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -13,7 +14,7 @@ namespace EBooks.Controllers
 
         #region Propriedades
 
-        private LivroDAO _dao = new LivroDAO();
+        private RepositoryLivro _repLivro = new RepositoryLivro();
 
         public List<Livro> LstLivros
         {
@@ -30,7 +31,7 @@ namespace EBooks.Controllers
         {
             if (LstLivros != null && LstLivros.Any()) return View(LstLivros);
             LstLivros = new List<Livro>();
-            LstLivros = _dao.PreencherLivros();
+            LstLivros = _repLivro.PreencherLivros();
             return View(LstLivros);
         }
 
@@ -51,14 +52,14 @@ namespace EBooks.Controllers
                 return View(l);
             try
             {
-                l = _dao.AdicionaImagemLivro(l, file);
+                l = _repLivro.AdicionaImagemLivro(l, file);
             }
             catch(Exception ex)
             {
                 ModelState.AddModelError("Imagem", ex.Message);
                 return View(l);
             }
-            _dao.AddLivro(l);
+            _repLivro.AddLivro(l);
             TempData["msg"] = "Livro cadastrado com sucesso!";
             return RedirectToAction("NovoLivro");
         }
@@ -87,14 +88,14 @@ namespace EBooks.Controllers
                 return View(l);
             try
             {
-                l = _dao.AdicionaImagemLivro(l, file);
+                l = _repLivro.AdicionaImagemLivro(l, file);
             }
             catch (Exception ex)
             {
                 ModelState.AddModelError("Imagem", ex.Message);
                 return View(l);
             }
-            _dao.UpdateLivro(l);
+            _repLivro.UpdateLivro(l);
             TempData["msg"] = "Livro alterado com sucesso!";            
             return RedirectToAction("TodosLivros");
         }
@@ -107,7 +108,7 @@ namespace EBooks.Controllers
         {
             try
             {
-                _dao.DeleteLivro(id);
+                _repLivro.DeleteLivro(id);
             }
             catch (Exception ex)
             {
