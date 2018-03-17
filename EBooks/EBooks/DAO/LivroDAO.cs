@@ -10,7 +10,7 @@ namespace EBooks.DAO
     public class LivroDAO
     {
 
-        #region CRUD
+        #region Metodos
 
         public void AddLivro(Livro l)
         {

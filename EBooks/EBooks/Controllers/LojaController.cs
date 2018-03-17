@@ -1,4 +1,5 @@
-﻿using EBooks.Models;
+﻿using EBooks.DAO;
+using EBooks.Models;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -11,6 +12,9 @@ namespace EBooks.Controllers
     {
 
         #region Propriedades
+
+        private LivroDAO _livroDao = new LivroDAO();
+        private CarrinhoDAO _carrinhoDao = new CarrinhoDAO();
 
         public List<CarrinhoDeCompra> LstCarrinho
         {
@@ -28,10 +32,7 @@ namespace EBooks.Controllers
                 LstCarrinho = new List<CarrinhoDeCompra>();
             var lstLivros = (List<Livro>)Session["LstLivros"];
             if (lstLivros == null || !lstLivros.Any())
-            {
-                lstLivros = PreencherLivros();
-                Session["LstLivros"] = lstLivros;
-            };
+                Session["LstLivros"] = _livroDao.PreencherLivros();
             return View(lstLivros);
         }
 
@@ -72,7 +73,7 @@ namespace EBooks.Controllers
                     Quantidade = quantidade,
                     Total = livro.Preco * quantidade
                 };
-            }                       
+            }
             LstCarrinho.Add(cart);
             var totalQuantidadeRestante = livro.Quantidade - quantidade;
 

@@ -144,6 +144,7 @@
     <Compile Include="Controllers\HomeController.cs" />
     <Compile Include="Controllers\LivroController.cs" />
     <Compile Include="Controllers\LojaController.cs" />
+    <Compile Include="DAO\CarrinhoDAO.cs" />
     <Compile Include="DAO\LivroDAO.cs" />
     <Compile Include="Global.asax.cs">
       <DependentUpon>Global.asax</DependentUpon>
