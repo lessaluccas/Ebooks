@@ -33,7 +33,11 @@ namespace EBooks.Controllers
                 LstCarrinho = new List<CarrinhoDeCompra>();
             var lstLivros = (List<Livro>)Session["LstLivros"];
             if (lstLivros == null || !lstLivros.Any())
-                Session["LstLivros"] = _repLivro.PreencherLivros();
+            {
+                lstLivros = _repLivro.PreencherLivros();
+                Session["LstLivros"] = lstLivros;
+
+            }
             return View(lstLivros);
         }
 

@@ -173,6 +173,9 @@
     <Content Include="Content\img\modelLivro.PNG" />
     <Content Include="Content\img\pageLoadLoja.PNG" />
     <Content Include="Content\img\preencheLivros.PNG" />
+    <Content Include="Content\img\RepositorioCarrinho.PNG" />
+    <Content Include="Content\img\RepositorioLivro.PNG" />
+    <Content Include="Content\img\RepositorioPrivate.PNG" />
     <Content Include="Content\img\SessionCarrinho.PNG" />
     <Content Include="Content\img\SessionLivros.PNG" />
     <Content Include="Content\img\updateLivro.PNG" />
@@ -261,6 +264,7 @@
     <Content Include="Views\Carrinho\Carrinho.cshtml" />
     <Content Include="Views\Carrinho\_Carrinho.cshtml" />
     <Content Include="Views\Carrinho\_Pagamento.cshtml" />
+    <Content Include="Views\Home\Post.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />

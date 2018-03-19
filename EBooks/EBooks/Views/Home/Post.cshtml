@@ -1,0 +1,672 @@
+﻿@{
+    ViewBag.Title = "Post";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<style>
+    .perguntas {
+        border-left: 3px solid blue;
+        padding-left: 10px;
+        background-color: aliceblue;
+    }
+
+    .jumbotron {
+        padding: 20px;
+    }
+
+    .codigo {
+        border-left: 3px solid red;
+        padding-left: 15px;
+        background-color: aliceblue;
+    }
+</style>
+
+<div class="jumbotron">
+    <h2 class="text-center"><b>Otimizando a Loja de Livros</b></h2>
+
+    <br />
+    <br />
+
+    <p>
+        No post anterior fiz um "passo a passo" de como criar uma loja de livros sem banco de dados, porém podemos otimiza-lo utilizando alguns passos, vamos lá ?.
+    </p>
+
+    <p>
+        Lembra do nosso controller de livros ? iremos, basicamente, alterá-lo por inteiro já que se precisarmos utilizar os mesmos métodos em outros lugares não conseguiremos.
+    </p>
+
+    <br />
+
+    <div class="perguntas">
+        <p>
+            “Como assim, tudo o que eu fiz vai ser jogado fora ?”
+        </p>
+    </div>
+
+    <br />
+
+    <p>
+        Não, iremos aproveitar o que já foi feito e deixar um código limpo e que possa ser chamado de outros controllers sem ter que digitar tudo novamente ou dar aquele CTRL + C.
+    </p>
+
+    <p>
+        Note no controller o nosso código para adicionar um livro:
+    </p>
+
+    <br />
+
+    <div class="codigo">
+        <p>
+            public ActionResult NovoLivro(Livro l, HttpPostedFileBase file)<br />
+            {<br />
+            if (!ModelState.IsValid)<br />
+            return View(l);<br />
+            //Criando um novo ID randômico para o livro<br />
+            //Recuperando o arquivo de imagem<br />
+            if (file != null && file.ContentLength > 0 && (file.ContentType == "image/jpg" || file.ContentType == "image/jpeg" || file.ContentType == "image/png"))<br />
+            {<br />
+            //Convertendo imagem para base64 (BYTES)<br />
+            int filelenght = file.ContentLength;<br />
+            byte[] imagebytes = new byte[filelenght];<br />
+            file.InputStream.Read(imagebytes, 0, filelenght);<br />
+            l.Imagem = imagebytes;<br />
+            }<br />
+            else<br />
+            {<br />
+            ModelState.AddModelError("Imagem", "Favor selecionar uma imagem!");<br />
+            return View(l);<br />
+            }<br />
+            var rand = new Random();<br />
+            l.LivroId = rand.Next(0, Int32.MaxValue);<br />
+            //Adicionando O novo livro na lista de livros<br />
+            LstLivros.Add(l);<br />
+            //Dando uma mensagem de sucesso para o usuário<br />
+            TempData["msg"] = "Livro cadastrado com sucesso!";<br />
+            //Retornando para a action NovoLivro(HTTPGET)<br />
+            return RedirectToAction("NovoLivro");<br />
+            }
+        </p>
+    </div>
+
+    <br />
+
+    <p>
+        Concorda que se quisermos adicionar esse mesmo método em outro controller teríamos que escrever ele novamente ? ou até mesmo o método de adicionar imagem ao livro, ele é utilizado tanto na adição de livros quanto na alteração de livros e o código é digitado novamente, não poderíamos separar esses métodos e se necessário utilizá-los de outros lugares ?
+    </p>
+
+    <p>
+        Imagina que você trabalhe em uma empresa que possua 10 desenvolvedores, cada um criando criando seu próprio método no controller, quanto código replicado teríamos em nosso projeto ?, se um dia 1 desenvolvedor não estiver presente e você precisar mexer no controller que ele criou, vai precisar entender toda a lógica que foi feita para depois dar inicio as alterações.
+        Não seria mais fácil se fosse direto ao erro, facilitando a manutenção ?
+    </p>
+
+    <p>
+        Por isso vamos utilizar o conceito de DAO e REPOSITORY
+        Design Pattern para acesso a dados que permite realizar o isolamento entre a camada de acesso a dados (DAO) e a camada de apresentação ou camada de negócios.
+    </p>
+
+    <p>
+        Quais são seus benefícios:
+        <br />
+        * Separação de conceitos;<br />
+        * Menos erros e códigos duplicados;<br />
+        * Facilita os testes automatizados;<br />
+        * Facilita a manutenção;
+    </p>
+
+    <p>
+        Vamos criar nossa camada DAO, que faria as operações de CRUD caso tivéssemos um banco de dados, como utilizamos sessions vamos utilizar os métodos que já existem em nossos controllers.
+    </p>
+
+    <p>
+        Eu costumo criar uma pasta no projeto chamada DAO e dentro da pasta eu coloco as classes, costumo manter uma padrão de todas as classes ter a palavra DAO ao final do nome, ou seja: “LivroDAO.cs”.
+    </p>
+
+    <p>
+        Nosso primeiro método será o de adicionar um livro:
+    </p>
+
+    <br />
+
+    <div class="codigo">
+        <p>
+            public void AddLivro(Livro l)<br />
+            {<br />
+            var lstLivros = (List<Livro>
+                )HttpContext.Current.Session["LstLivros"];<br />
+                var rand = new Random();<br />
+                l.LivroId = rand.Next(0, Int32.MaxValue);<br />
+                lstLivros.Add(l);<br />
+                HttpContext.Current.Session["LstLivros"] = lstLivros;<br />
+                }
+        </p>
+    </div>
+
+    <br />
+
+    <p>
+        Bem simples, recebe a classe livro como parâmetro que foi os dados que o usuário digitou, após isso recupera a session de livros, e adiciona um novo livro na lista.
+        Como o método é um “void” não possui retorno.
+    </p>
+
+    <p>
+        O que fizemos com a imagem ? adicionamos um novo método para incluir a imagem no livro:
+    </p>
+
+    <br />
+
+    <div class="codigo">
+        <p>
+            public Livro AdicionaImagemLivro(Livro l, HttpPostedFileBase file)<br />
+            {<br />
+            if (file != null && file.ContentLength > 0 && (file.ContentType == "image/jpg" || file.ContentType == "image/jpeg" || file.ContentType == "image/png"))<br />
+            {<br />
+            //Convertendo imagem para base64 (BYTES)<br />
+            int filelenght = file.ContentLength;<br />
+            byte[] imagebytes = new byte[filelenght];<br />
+            file.InputStream.Read(imagebytes, 0, filelenght);<br />
+            l.Imagem = imagebytes;<br />
+            return l;<br />
+            }<br />
+            else<br />
+            {<br />
+            throw new ArgumentException("Favor selecionar uma imagem!");<br />
+            }<br />
+            }
+        </p>
+    </div>
+
+    <br />
+
+    <p>
+        O método é do tipo livro então precisamos retornar a classe “livro”.
+        Recebe o livro como parâmetro e a imagem, passando pela validação ele adiciona a imagem no livro e retorna o livro com a imagem.
+        Note que caso a validação seja false  ele vai cair no “else”, eu falo que deu uma nova exceção com uma mensagem.
+    </p>
+
+    <p>
+        Criamos os métodos necessários para adicionar um novo livro na nossa classe DAO, vamos ver como fica no controller ?
+    </p>
+
+    <br />
+
+    <div class="codigo">
+        <p>
+            public ActionResult NovoLivro(Livro l, HttpPostedFileBase file)<br />
+            {<br />
+            if (!ModelState.IsValid)<br />
+            return View(l);<br />
+
+            var dao = new LivroDAO();<br />
+            try<br />
+            {<br />
+            l = dao.AdicionaImagemLivro(l, file);<br />
+            }<br />
+            catch(Exception ex)<br />
+            {<br />
+            ModelState.AddModelError("Imagem", ex.Message);<br />
+            return View(l);<br />
+            }<br />
+            dao.AddLivro(l);<br />
+            TempData["msg"] = "Livro cadastrado com sucesso!";<br />
+            return RedirectToAction("NovoLivro");<br />
+            }
+        </p>
+    </div>
+
+    <br />
+
+    <p>
+        Como podem ver a validação do ModelState contínua necessária para verificar os dados informados pelo usuário.
+    </p>
+
+    <p>
+        Instanciamos nosso DAO para poder chamar os métodos que acabamos de criar.
+    </p>
+
+    <p>
+        Encapsulo o método de adicionar imagem dentro de um “Try e Catch”, ele vai tentar adicionar a imagem, caso caia naquele nosso “else” que tem no método de incluir imagem, ele vai entrar no nosso “catch” que recebe a classe “Exception” como parâmetro, adiciona um erro na ModelState para nosso item “imagem” passando aquela mensagem do nosso método de adicionar imagem ("Favor selecionar uma imagem!") e retornamos a view com o livro e com o erro que adicionamos na imagem.
+    </p>
+
+    <p>
+        Não caindo no nosso “catch” eu chamo o nosso método que adiciona o livro na session, retornando para action que chama a tela com a mensagem de sucesso.
+    </p>
+
+    <p>
+        Nosso próximo método a criar no DAO é o de update:
+    </p>
+
+    <br />
+
+    <div class="codigo">
+        <p>
+            public void UpdateLivro(Livro l)<br />
+            {<br />
+            var lstLivros = (List<Livro>
+                )HttpContext.Current.Session["LstLivros"];<br />
+                lstLivros.RemoveAll(x => x.LivroId.ToString().Equals(l.LivroId.ToString()));<br />
+                lstLivros.Add(l);<br />
+                HttpContext.Current.Session["LstLivros"] = lstLivros;<br />
+                }
+        </p>
+    </div>
+
+    <br />
+
+    <p>
+        O método é um void novamente, sendo assim, sem retorno.
+        Acha na nossa lista o livro e remove onde id for igual ao do livro recebido por parâmetro, e adiciona na lista com os dados alterados.
+    </p>
+
+    <br />
+
+    <div class="codigo">
+        <p>
+            public ActionResult EditarLivro(Livro l, HttpPostedFileBase file)<br />
+            {<br />
+            if (!ModelState.IsValid)<br />
+            return View(l);<br />
+            var dao = new LivroDAO();<br />
+            try<br />
+            {<br />
+            l = dao.AdicionaImagemLivro(l, file);<br />
+            }<br />
+            catch (Exception ex)<br />
+            {<br />
+            ModelState.AddModelError("Imagem", ex.Message);<br />
+            return View(l);<br />
+            }<br />
+            dao.UpdateLivro(l);<br />
+            TempData["msg"] = "Livro alterado com sucesso!";<br />
+            return RedirectToAction("TodosLivros");<br />
+            }
+        </p>
+    </div>
+
+    <br />
+
+    <p>
+        E assim fica nosso método no controller.
+        Como para editar um livro precisamos da imagem, o nosso encapsulamento de try e catch está presente no update para pegar o erro, caso ocorra.
+    </p>
+
+    <p>
+        Para operações CRUD utilizadas no nosso projeto, falta apenas um método no nosso DAO que é o de excluir:
+    </p>
+
+    <br />
+
+    <div class="codigo">
+        <p>
+            public void DeleteLivro(int id)<br />
+            {<br />
+            var lstLivros = (List<Livro>
+                )HttpContext.Current.Session["LstLivros"];<br />
+                if (id <= 0 || !lstLivros.Any(x => x.LivroId.Equals(id)))<br />
+                throw new ArgumentException("Não foi possível localizar o livro, favor verificar!");<br />
+                lstLivros.RemoveAll(x => x.LivroId.Equals(id));<br />
+                HttpContext.Current.Session["LstLivros"] = lstLivros;<br />
+                }
+        </p>
+    </div>
+
+    <br />
+
+    <p>
+        Que verifica se o livro que está tentando excluir existe, se não retorna uma exception(exceção) com uma mensagem, se existe, apenas remove.
+    </p>
+
+    <p>
+        Sendo assim nosso método no controller fica dessa maneira:
+    </p>
+
+    <br />
+
+    <div class="codigo">
+        <p>
+            public ActionResult ExcluirLivro(int id)<br />
+            {<br />
+            var dao = new LivroDao();<br />
+            try<br />
+            {<br />
+            dao.DeleteLivro(id);<br />
+            }<br />
+            catch (Exception ex)<br />
+            {<br />
+            TempData["erro"] = ex.Message;<br />
+            return RedirectToAction("TodosLivros");<br />
+            }<br />
+            TempData["msg"] = "Livro excluído com sucesso!";<br />
+            return RedirectToAction("TodosLivros");<br />
+            }
+        </p>
+    </div>
+
+    <br />
+
+    <div class="perguntas">
+        <p>
+            “Por que precisamos do encapsulamento nesse método ?”
+        </p>
+    </div>
+
+    <br />
+
+    <p>
+        Adicionamos uma exceção no DAO, para que possamos pegar essa exceção, caso ela ocorra, precisamos do nosso encapsulamento.
+    </p>
+
+    <p>
+        Lembra do nosso método que preenche a lista de livro(session) caso ela seja nula ? podemos adicionar ela ao nosso DAO, não ? podemos!
+    </p>
+
+    <br />
+
+    <div class="codigo">
+        <p>
+            public List<Livro>
+                PreencherLivros()<br />
+                {<br />
+                var rand = new Random();<br />
+                var lstLivros = new List<Livro>
+                    <br />
+                    {<br />
+                    new Livro()<br />
+                    {<br />
+                    LivroId = rand.Next(0, Int32.MaxValue),<br />
+                    Nome = "NOME",<br />
+                    Descricao = "Descricao",<br />
+                    Preco = Convert.ToDecimal(34.98),<br />
+                    Quantidade = 3,<br />
+                    Imagem = (IMAGEM EM BASE 64)<br />
+                    },<br />
+                    };<br />
+                    return lstLivros;<br />
+                    }
+        </p>
+    </div>
+
+    <br />
+
+    <p>
+        Quando necessário chamar esse método, basta utilizar a classe DAO.
+    </p>
+
+    <p>
+        Agora vamos criar uma nova classe DAO, mantendo nosso padrão, para o carrinho, ou seja: “CarrinhoDAO.cs”.
+    </p>
+
+    <p>
+        Nosso primeiro método a passar para o DAO é o que utilizamos no controller da loja para adicionar um livro ao carrinho:
+    </p>
+
+    <br />
+
+    <div class="codigo">
+        <p>
+            public void AddCarrinho(int id, int quantidade = 0)<br />
+            {<br />
+            var lstLivros = (List<Livro>
+                )HttpContext.Current.Session["LstLivros"];<br />
+                var lstCarrinho = (List<CarrinhoDeCompra>
+                    )HttpContext.Current.Session["LstCarrinho"];<br />
+                    var livro = lstLivros.Find(x => x.LivroId.Equals(id));<br />
+                    if (livro == null)<br />
+                    throw new ArgumentException("Livro não encontrado!");<br />
+
+                    if (quantidade > livro.Quantidade || quantidade <= 0)<br />
+                    throw new ArgumentException("Quantidade de livros indiponível!");<br />
+                    var cart = lstCarrinho.Find(x => x.Livro.LivroId.Equals(id));<br />
+                    if (cart != null)<br />
+                    {<br />
+                    lstCarrinho.RemoveAll(x => x.CarrinhoId.Equals(cart.CarrinhoId));<br />
+                    cart.Quantidade = cart.Quantidade + quantidade;<br />
+                    cart.Total = livro.Preco * cart.Quantidade;<br />
+                    }<br />
+                    else<br />
+                    {<br />
+                    var rand = new Random();<br />
+                    cart = new CarrinhoDeCompra()<br />
+                    {<br />
+                    CarrinhoId = rand.Next(0, Int32.MaxValue),<br />
+                    Livro = livro,<br />
+                    Quantidade = quantidade,<br />
+                    Total = livro.Preco * quantidade<br />
+                    };<br />
+                    }<br />
+                    lstCarrinho.Add(cart);<br />
+                    HttpContext.Current.Session["LstCarrinho"] = lstCarrinho;<br />
+                    var totalQuantidadeRestante = livro.Quantidade - quantidade;<br />
+                    livro.Quantidade = totalQuantidadeRestante < 0 ? 0 : totalQuantidadeRestante;<br />
+                    lstLivros.RemoveAll(x => x.LivroId.Equals(livro.LivroId));<br />
+                    lstLivros.Add(livro);<br />
+                    HttpContext.Current.Session["LstLivros"] = lstLivros;<br />
+                    }
+        </p>
+    </div>
+
+    <br />
+
+    <p>
+        Caso você não lembra ou não entendeu esse método, dê uma passada no meu post anterior que eu explico ele, mas ele basicamente faz as validações necessárias para adicionar um livro ao carrinho, remove a quantidade de livros que o usuário escolheu para adicionar no carrinho da nossa lista de livro(session). E por quê fazemos isso ?
+        Para caso o usuário adicione toda a quantidade disponível, o livro fique indisponível para compra.
+        E adicionamos o carrinho na nossa session de carrinho.
+    </p>
+
+    <p>
+        Note que nesse métodos colocamos algumas exceções, então precisamos do encapsulamento por try e catch no nosso controller, correto ?
+    </p>
+
+    <br />
+
+    <div class="codigo">
+        <p>
+            public ActionResult AddCarrinho(int id, int quantidade = 0)<br />
+            {<br />
+            var dao = new CarrinhoDAO();<br />
+            try<br />
+            {<br />
+            dao.AddCarrinho(id, quantidade);<br />
+            }<br />
+            catch (Exception ex)<br />
+            {<br />
+            TempData["erro"] = ex.Message;<br />
+            return RedirectToAction("LojaLivros");<br />
+            }<br />
+            TempData["msg"] = "Livro adicionado ao carrinho com sucesso!";<br />
+            return RedirectToAction("LojaLivros");<br />
+            }
+        </p>
+    </div>
+
+    <br />
+
+    <p>
+        Que no caso o método acima fica no controller da loja.
+    </p>
+
+    <p>
+        Partindo para nosso próximo método no “CarrinhoDAO” que é o de excluir um livro do carrinho:
+    </p>
+
+    <br />
+
+    <div class="codigo">
+        <p>
+            public void DeleteLivroCarrinho(int id, int quantidade = 0)<br />
+            {<br />
+            if (quantidade <= 0)<br />
+            throw new ArgumentException("Para remover um item do carrinho a quantidade deve ser maior que 0!");<br />
+
+            var lstLivros = (List<Livro>
+                )HttpContext.Current.Session["LstLivros"];<br />
+                var lstCarrinho = (List<CarrinhoDeCompra>
+                    )HttpContext.Current.Session["LstCarrinho"];<br />
+                    var cart = lstCarrinho.Find(x => x.CarrinhoId.Equals(id));<br />
+                    if (cart == null)<br />
+                    throw new ArgumentException("Item do carrinho não encontrado!");<br />
+
+                    if (quantidade > cart.Quantidade)<br />
+                    throw new ArgumentException("Não é possível remover quantidade maior do que a disponível no carrinho!");<br />
+
+                    var totalQtde = cart.Quantidade - quantidade;<br />
+                    lstCarrinho.RemoveAll(x => x.CarrinhoId.Equals(cart.CarrinhoId));<br />
+                    var livro = lstLivros.Find(x => x.LivroId.Equals(cart.Livro.LivroId));<br />
+                    if (livro == null) throw new ArgumentException("Livro não encontrado!");<br />
+                    lstLivros.RemoveAll(x => x.LivroId.Equals(livro.LivroId));<br />
+                    livro.Quantidade = livro.Quantidade + quantidade;<br />
+                    lstLivros.Add(livro);<br />
+                    HttpContext.Current.Session["LstLivros"] = lstLivros;<br />
+                    if (totalQtde > 0)<br />
+                    {<br />
+                    cart.Quantidade = totalQtde;<br />
+                    cart.Total = cart.Livro.Preco * cart.Quantidade;<br />
+                    lstCarrinho.Add(cart);<br />
+                    HttpContext.Current.Session["LstCarrinho"] = lstCarrinho;<br />
+                    }<br />
+                    }
+        </p>
+    </div>
+
+    <br />
+
+    <p>
+        Esse método verifica a quantidade de livro que o usuário deseja remover do carrinho caso tenha 2 livros iguais no carrinho e ele remove apenas 1, é adicionado uma quantidade a mais na lista de livro(session) e removido 1 da session de carrinho, caso remova os 2, o livro é removido do carrinho e a quantidade é adicionada a lista de livro.
+    </p>
+
+    <p>
+        E o nosso método no controller do carrinho ficaria assim:
+    </p>
+
+    <br />
+
+    <div class="codigo">
+        <p>
+            public ActionResult RemoverLivroCarrinho(int id, int quantidade)<br />
+            {<br />
+            var dao = new CarrinhoDAO();<br />
+            try<br />
+            {<br />
+            dao.DeleteLivroCarrinho(id, quantidade);<br />
+            }<br />
+            catch (Exception ex)<br />
+            {<br />
+            TempData["erro"] = ex.Message;<br />
+            return RedirectToAction("Carrinho");<br />
+            }<br />
+            return RedirectToAction("Carrinho");<br />
+            }
+        </p>
+    </div>
+
+    <br />
+
+    <p>
+        Bem simples a utilização, não é ? Fácil de dar manutenção e de entender o método do controller.
+    </p>
+
+    <p>
+        Mas você percebeu que em todos nossos métodos no controller estamos instanciando um novo DAO ? Vamos simplificar isso criando o nosso repositório.
+    </p>
+
+    <p>
+        De costume eu crio uma nova pasta para o repositório no projeto, chamada Repositorio e ou Repository. Dentro dela eu crio uma classe que possui o nome Repositorio/Repository na frente; “RepositoryLivro.cs”
+    </p>
+
+    <br />
+
+    <img src="~/Content/img/RepositorioLivro.PNG" />
+
+    <br />
+    <br />
+
+    <img src="~/Content/img/RepositorioCarrinho.PNG" />
+
+    <br />
+
+    <p>
+        A nossas classes de repositório herdam de seus respectivos DAO’s, ou seja, todo método que criamos no nosso DAO, podem ser chamados pelos repositórios.
+    </p>
+
+    <p>
+        E por quê não utilizamos diretamente o DAO ? O DAO é a classe que está se comunicando com os dados para o CRUD, então o repositório serve como uma ligação com o DAO.
+    </p>
+
+    <p>
+        Sendo possível adicionar métodos no repositório também, caso tivermos vontade de pesquisar um livro na loja pelo nome, poderíamos adicionar o nosso método no repositório.
+    </p>
+
+    <p>
+        EX:
+    </p>
+
+    <br />
+
+    <div class="codigo">
+        <p>
+            public List<Livro> BuscarLivroPeloNome(string nome)<br />
+                {<br />
+                var lstLivros = (List<Livro>)HttpContext.Current.Session["LstLivros"];<br />
+                    if (string.IsNullOrWhiteSpace(nome)) return lstLivros;<br />
+                    return lstLivros.Where(x => x.Nome.ToUpper().Contains(nome.ToUpper())).ToList();<br />
+                    }
+        </p>
+    </div>
+
+    <br />
+
+    <p>
+        Este método está recuperando a lista de livros e verificando o que o usuário digitou na pesquisa não é nulo ou vazio(espaço em branco) se for ele retorna a lista de livros como está, se não for faz uma pesquisa dentro da lista, transformando o nome dos livros para maiúsculo e aonde tiver o que foi digitado pelo usuário (contains), se for digitado um “a” ele vai retornar todos os livros que contém “a” no nome, e passo também o que o usuário digitou para maiúsculo também, evitando que não ache o livro por conta de estar maiúsculo ou minúsculo.
+    </p>
+
+    <br />
+
+    <div class="perguntas">
+        <p>
+            “E por quê você utiliza um ToList() no final ?”
+        </p>
+    </div>
+
+    <br />
+
+    <p>
+        Realizando a consulta dentro da nossa lista ela vira um IEnumerable, mas como nosso método é do tipo List, precisamos realizar essa “conversão”.
+    </p>
+
+    <p>
+        Feito isso, precisamos alterar todos os métodos que utilizamos “var dao = new ...DAO()”.
+    </p>
+
+    <p>
+        Mas não substituiremos para criar um novo repositório em todos os métodos, vamos criar uma variável no controller que será chamada pelos métodos.
+    </p>
+
+    <br />
+
+    <img src="~/Content/img/RepositorioPrivate.PNG" />
+
+    <br />
+
+    <p>
+        private RepositoryLivro _repLivro = new RepositoryLivro();<br />
+        private RepositorioCarrinho _repCarrinho = new RepositoryCarrinho();
+    </p>
+
+    <p>
+        O private é para dizer que ele pertence apenas ao controller que ele foi instanciado e que só pode ser utilizado por métodos do mesmo.
+    </p>
+
+    <p>
+        Agora vamos substituir os lugares em que instanciamos o DAO e utilizamos “dao.(método)”, para apenas “_repLivro/_repCarrinho.(método)”, e lembre-se de remover o seguinte código “var dao = new ...DAO()”.
+    </p>
+
+    <p>
+        Com isso tornamos o nosso código mais limpo, facilitando manutenção e etc.
+    </p>
+
+    <p>
+        Espero que tenham gostado e até a próxima!
+        <br />
+        Autor: Luccas Henrique Lessa Maccarone
+    </p>
+
+</div>
